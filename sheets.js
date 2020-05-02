@@ -2,8 +2,10 @@ const fs = require('fs');
 const readline = require('readline');
 const { google } = require('googleapis');
 
+const SPREADSHEET_ID = '1TdtiBmqIrfxLgm-eO1m8zwXMOfr-naGObca8pHauFUs';
+
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
+const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
@@ -11,7 +13,10 @@ const TOKEN_PATH = 'token.json';
 
 fs.readFile('credentials.json', (err, content) => {
   if (err) return console.log('Error loading client secret file:', err);
-  authorize(JSON.parse(content), listMajors);
+  // authorize(JSON.parse(content), listMajors);
+  authorize(JSON.parse(content), (auth) => {
+    saveDataAndSendResponse(auth);
+  });
 });
 
 /**
@@ -80,7 +85,7 @@ function listMajors(auth) {
   const sheets = google.sheets({ version: 'v4', auth });
   sheets.spreadsheets.values.get(
     {
-      spreadsheetId: '1TdtiBmqIrfxLgm-eO1m8zwXMOfr-naGObca8pHauFUs',
+      spreadsheetId: SPREADSHEET_ID,
       range: 'Class Data!A2:E',
     },
     (err, res) => {
@@ -94,6 +99,42 @@ function listMajors(auth) {
         });
       } else {
         console.log('No data found.');
+      }
+    }
+  );
+}
+
+function saveDataAndSendResponse(auth) {
+  // data is an array of arrays
+  // each inner array is a row
+  // each array element (of an inner array) is a column
+  const data = {
+    data: [
+      [1, 2],
+      [3, 4],
+    ],
+  };
+  let resource = {
+    values: data,
+  };
+  const sheets = google.sheets({ version: 'v4', auth });
+
+  sheets.spreadsheets.values.append(
+    {
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'SheetOK!A2:E',
+      valueInputOption: 'RAW',
+      resource,
+    },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        // response.end(
+        //   'An error occurd while attempting to save data. See console output.'
+        // );
+      } else {
+        const responseText = `${result.data.updates.updatedCells} cells appended.`;
+        console.log(responseText);
       }
     }
   );
