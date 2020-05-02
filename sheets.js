@@ -15,7 +15,8 @@ fs.readFile('credentials.json', (err, content) => {
   if (err) return console.log('Error loading client secret file:', err);
   // authorize(JSON.parse(content), listMajors);
   authorize(JSON.parse(content), (auth) => {
-    saveDataAndSendResponse(auth);
+    const sheets = google.sheets({ version: 'v4', auth });
+    saveData(sheets);
   });
 });
 
@@ -81,8 +82,7 @@ function getNewToken(oAuth2Client, callback) {
  * @see https://docs.google.com/spreadsheets/d/1TdtiBmqIrfxLgm-eO1m8zwXMOfr-naGObca8pHauFUs/edit
  * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
  */
-function listMajors(auth) {
-  const sheets = google.sheets({ version: 'v4', auth });
+function listMajors(sheets) {
   sheets.spreadsheets.values.get(
     {
       spreadsheetId: SPREADSHEET_ID,
@@ -104,25 +104,22 @@ function listMajors(auth) {
   );
 }
 
-function saveDataAndSendResponse(auth) {
+function saveData(sheets) {
+  const data = [
+    [1, 2],
+    [3, 4],
+  ];
   // data is an array of arrays
   // each inner array is a row
   // each array element (of an inner array) is a column
-  const data = {
-    data: [
-      [1, 2],
-      [3, 4],
-    ],
-  };
   let resource = {
     values: data,
   };
-  const sheets = google.sheets({ version: 'v4', auth });
 
   sheets.spreadsheets.values.append(
     {
       spreadsheetId: SPREADSHEET_ID,
-      range: 'SheetOK!A2:E',
+      range: 'SheetOK!C3:E',
       valueInputOption: 'RAW',
       resource,
     },
