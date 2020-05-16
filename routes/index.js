@@ -5,8 +5,12 @@ var sheetdb = require('./sheetdb');
 /* GET home page. */
 router.get('/', async function (req, res, next) {
   const sheet = await sheetdb.getSheet();
-  const result = { title: sheet.title };
-  res.render('index', { title: 'Express' + JSON.stringify(result) });
+  const rows = await sheet.getRows();
+  console.log(rows.length);
+  const names = rows.map((row) => {
+    return `${row['Student Name']}`;
+  });
+  res.render('index', { title: 'Express ', names: names });
 });
 
 module.exports = router;
