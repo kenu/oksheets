@@ -1,3 +1,5 @@
+var express = require('express');
+var router = express.Router();
 // https://www.npmjs.com/package/google-spreadsheet
 // Basic Example
 
@@ -17,17 +19,15 @@ async function doiT() {
     private_key: PRIVATE_KEY,
   });
   await doc.loadInfo(); // loads document properties and worksheets
-  console.log(doc.title);
-  await doc.updateProperties({ title: 'renamed doc' });
 
   const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
-  console.log(sheet.title);
-  console.log(sheet.rowCount);
-
-  // adding / removing sheets
-  const newSheet = await doc.addSheet({ title: 'hot new sheet2' });
-  await newSheet.delete();
+  return { title: sheet.title, count: sheet.rowCount };
 }
 
-doiT();
+/* GET home page. */
+router.get('/', async function (req, res, next) {
+  const result = await doiT();
+  res.render('index', { title: 'Express' + JSON.stringify(result) });
+});
 
+module.exports = router;
