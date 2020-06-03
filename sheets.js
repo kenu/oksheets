@@ -13,11 +13,11 @@ const TOKEN_PATH = 'token.json';
 
 fs.readFile('credentials.json', (err, content) => {
   if (err) return console.log('Error loading client secret file:', err);
-  // authorize(JSON.parse(content), listMajors);
-  authorize(JSON.parse(content), (auth) => {
-    const sheets = google.sheets({ version: 'v4', auth });
-    saveData(sheets);
-  });
+  authorize(JSON.parse(content), listMajors);
+  // authorize(JSON.parse(content), (auth) => {
+  //   const sheets = google.sheets({ version: 'v4', auth });
+  //   saveData(sheets);
+  // });
 });
 
 /**
@@ -82,7 +82,9 @@ function getNewToken(oAuth2Client, callback) {
  * @see https://docs.google.com/spreadsheets/d/1TdtiBmqIrfxLgm-eO1m8zwXMOfr-naGObca8pHauFUs/edit
  * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
  */
-function listMajors(sheets) {
+function listMajors(auth) {
+  const sheets = google.sheets({ version: 'v4', auth });
+
   sheets.spreadsheets.values.get(
     {
       spreadsheetId: SPREADSHEET_ID,
