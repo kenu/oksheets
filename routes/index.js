@@ -4,13 +4,14 @@ var sheetdb = require('./sheetdb');
 
 /* GET home page. */
 router.get('/', async function (req, res, next) {
-  const sheet = await sheetdb.getSheet();
+  const info = { sheetId: '1XruXewOawDgPC4CcrtDBNqUyFwdDttJk-wh0tyS9A_I', index: 1 };
+  const sheet = await sheetdb.getSheet(info);
   const rows = await sheet.getRows();
   console.log(rows.length);
-  const names = rows.map((row) => {
-    return `${row['Student Name']}`;
+  const items = rows.map((row) => {
+    return row;
   });
-  res.render('index', { title: 'Express ', names: names });
+  res.render('index', { title: 'Express ', items: items });
 });
 
 module.exports = router;
